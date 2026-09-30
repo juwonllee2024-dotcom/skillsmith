@@ -30,7 +30,7 @@ def load_jsonl(path: str | Path, *, session_id: str, max_record_bytes: int = 1_0
             rows.append((line_number, record))
 
     provisional: list[CanonicalEvent] = [
-        canonicalize_event(record, session_id=session_id, source=str(source), line=line_number)
+        canonicalize_event(record, session_id=session_id, source=source.name, line=line_number)
         for line_number, record in rows
     ]
     step_by_line = {
@@ -51,7 +51,7 @@ def load_jsonl(path: str | Path, *, session_id: str, max_record_bytes: int = 1_0
             event = canonicalize_event(
                 rewritten,
                 session_id=session_id,
-                source=str(source),
+                source=source.name,
                 line=line_number,
             )
         events.append(event)

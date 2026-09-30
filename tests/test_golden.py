@@ -30,3 +30,23 @@ def test_golden_three_trace_pipeline_promotes_only_proven_repeated_workflow(tmp_
     assert provenance["instructions"][0]["instruction"] == "run pytest -q"
     assert len(provenance["instructions"][0]["sources"]) == 2
     assert {src["session_id"] for src in provenance["instructions"][0]["sources"]} == {"success-a", "success-b"}
+
+
+def test_golden_artifacts_are_identical_when_same_traces_live_in_different_directories(tmp_path: Path):
+    left = tmp_path / "left"
+    right = tmp_path / "right"
+    left.mkdir()
+    right.mkdir()
+    names = ["success-a.jsonl", "success-b.jsonl", "fail-done.jsonl"]
+    for name in names:
+        data = (FIXTURES / name).read_bytes()
+        (left / name).write_bytes(data)
+        (right / name).write_bytes(data)
+
+    out_left = tmp_path / "out-left"
+    out_right = tmp_path / "out-right"
+    assert main(["compile", *(str(left / name) for name in names), "--out", str(out_left)]) == 0
+    assert main(["compile", *(str(right / name) for name in names), "--out", str(out_right)]) == 0
+
+    for artifact in ("SKILL.md", "provenance.json", "eval.json"):
+        assert (out_left / artifact).read_bytes() == (out_right / artifact).read_bytes()

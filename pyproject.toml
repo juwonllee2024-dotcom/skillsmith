@@ -8,6 +8,9 @@ version = "0.1.0"
 description = "Turn proven agent work into reusable skills."
 requires-python = ">=3.11"
 
+[project.scripts]
+skillsmith = "skillsmith.cli:entrypoint"
+
 [project.optional-dependencies]
 dev = ["pytest>=8"]
 

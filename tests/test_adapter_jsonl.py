@@ -36,3 +36,14 @@ def test_load_jsonl_rejects_oversized_record(tmp_path: Path):
     path.write_text('{"type":"step","payload":{"x":"' + ('a' * 200) + '"}}\n', encoding="utf-8")
     with pytest.raises(JSONLLoadError, match=r"record exceeds"):
         load_jsonl(path, session_id="s", max_record_bytes=64)
+
+
+def test_load_jsonl_resolves_step_line_reference_to_canonical_step_id(tmp_path: Path):
+    path = tmp_path / "trace.jsonl"
+    path.write_text(
+        '{"type":"step","payload":{"instruction":"pytest -q"}}\n'
+        '{"type":"test","payload":{"status":"passed","deterministic":true,"step_line":1}}\n',
+        encoding="utf-8",
+    )
+    events = load_jsonl(path, session_id="trace")
+    assert events[1].payload["step_id"] == events[0].event_id

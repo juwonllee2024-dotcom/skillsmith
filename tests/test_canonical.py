@@ -25,3 +25,10 @@ def test_canonical_json_sorts_events_deterministically():
     assert first == second
     decoded = json.loads(first)
     assert [item["event_id"] for item in decoded] == sorted(item["event_id"] for item in decoded)
+
+
+def test_event_id_is_independent_of_absolute_source_location():
+    raw = {"type": "step", "payload": {"instruction": "run tests"}}
+    first = canonicalize_event(raw, session_id="same", source="/tmp/a/trace.jsonl", line=1)
+    second = canonicalize_event(raw, session_id="same", source="/different/path/trace.jsonl", line=1)
+    assert first.event_id == second.event_id

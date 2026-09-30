@@ -27,7 +27,6 @@ def canonicalize_event(raw: Mapping[str, Any], *, session_id: str, source: str, 
         "event_type": event_type,
         "payload": payload,
         "session_id": session_id,
-        "source": source,
         "line": int(line),
     }
     event_id = hashlib.sha256(_stable_json(basis).encode("utf-8")).hexdigest()[:24]

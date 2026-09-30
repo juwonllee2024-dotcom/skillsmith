@@ -6,6 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "skillsmith"
 version = "0.1.0"
 description = "Turn proven agent work into reusable skills."
+readme = "README.md"
+license = {file = "LICENSE"}
 requires-python = ">=3.11"
 
 [project.scripts]

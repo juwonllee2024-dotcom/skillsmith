@@ -24,8 +24,25 @@ jobs:
         run: pytest -q
       - name: Build wheel
         run: python -m pip wheel . --no-deps --wheel-dir dist
-      - name: Wheel install smoke test
+      - name: Wheel install and README smoke test
         run: |
           python -m venv .wheel-venv
           .wheel-venv/bin/python -m pip install dist/*.whl
           .wheel-venv/bin/skillsmith inspect tests/fixtures/golden/success-a.jsonl tests/fixtures/golden/success-b.jsonl tests/fixtures/golden/fail-done.jsonl
+          .wheel-venv/bin/skillsmith compile tests/fixtures/golden/success-a.jsonl tests/fixtures/golden/success-b.jsonl tests/fixtures/golden/fail-done.jsonl --out compiled-skill
+          test -f compiled-skill/SKILL.md
+          test -f compiled-skill/provenance.json
+          test -f compiled-skill/eval.json
+      - name: Secret-pattern scan
+        shell: bash
+        run: |
+          if grep -RIEqn \
+            --exclude-dir=.git \
+            --exclude-dir=.wheel-venv \
+            --exclude-dir=dist \
+            --exclude-dir=compiled-skill \
+            '(-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{30,}|sk-[A-Za-z0-9]{20,})' \
+            src tests examples docs README.md CONTRIBUTING.md SECURITY.md pyproject.toml .github; then
+            echo "Potential secret pattern found"
+            exit 1
+          fi

@@ -1,0 +1,2 @@
+{"type":"step","payload":{"instruction":"run pytest -q"}}
+{"type":"test","payload":{"status":"passed","deterministic":true,"step_line":1}}
